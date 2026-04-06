@@ -127,34 +127,51 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-screen relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
-      {/* Beautiful Bright Background with Vibrant Colors */}
+      {/* Elegant Bright Background */}
       <div className="fixed inset-0 z-0">
-        {/* Bright Background Image */}
+        {/* Main Background Image - Bright & Clear */}
         <div 
           className="absolute inset-0"
           style={{
             backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            opacity: '0.45',
-            filter: 'brightness(1.3) saturate(1.4)'
+            opacity: '0.6',
+            filter: 'brightness(1.5) saturate(1.2) contrast(1.1)',
+            transform: 'scale(1.1)'
           }}
         />
-        {/* Vibrant Color Mix Overlay */}
+        
+        {/* Elegant Gradient Overlay - Soft & Premium */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.3) 25%, rgba(236, 72, 153, 0.25) 50%, rgba(34, 211, 238, 0.2) 75%, rgba(168, 85, 247, 0.25) 100%)',
-            mixBlendMode: 'multiply'
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(147, 51, 234, 0.15) 25%, rgba(236, 72, 153, 0.12) 50%, rgba(59, 130, 246, 0.1) 75%, rgba(147, 51, 234, 0.12) 100%)'
           }}
         />
-        {/* Bright Gradient Glow */}
+        
+        {/* Soft White Glow for Elegance */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.3), transparent 50%), radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.3), transparent 50%)',
-            mixBlendMode: 'screen'
+            background: 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15), transparent 60%)'
+          }}
+        />
+        
+        {/* Premium Light Rays Effect */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.05) 10px, rgba(255, 255, 255, 0.05) 20px)'
+          }}
+        />
+        
+        {/* Bottom Fade for Clean Look */}
+        <div 
+          className="absolute inset-x-0 bottom-0 h-32"
+          style={{
+            background: 'linear-gradient(to top, rgba(249, 250, 251, 0.8), transparent)'
           }}
         />
       </div>
@@ -169,7 +186,7 @@ const Dashboard = () => {
         />
 
       {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg border-b border-gray-200/50 dark:border-gray-700/50">
+      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl border-b border-white/40 dark:border-gray-700/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -187,7 +204,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={() => navigate('/settings')}
-              className="flex items-center space-x-2 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg hover:bg-white/70 dark:hover:bg-gray-600/70 transition-all shadow-lg border border-white/20"
+              className="flex items-center space-x-2 px-4 py-2 bg-white/70 dark:bg-gray-700/70 backdrop-blur-md rounded-xl hover:bg-white/90 dark:hover:bg-gray-600/90 transition-all shadow-lg border border-white/40 hover:shadow-xl hover:scale-105"
               data-testid="settings-btn"
             >
               <SettingsIcon className="w-5 h-5" />
@@ -235,10 +252,10 @@ const Dashboard = () => {
           {uploadTab === 'file' && (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 shadow-xl ${
+              className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all backdrop-blur-md bg-white/60 dark:bg-gray-800/60 shadow-2xl ${
                 isDragActive
-                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/30 scale-105'
-                  : 'border-gray-300/50 dark:border-gray-600/50 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-2xl'
+                  ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-900/40 scale-105 shadow-blue-500/50'
+                  : 'border-gray-300/60 dark:border-gray-600/60 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-2xl hover:bg-white/70'
               } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               data-testid="upload-dropzone"
             >
@@ -255,7 +272,7 @@ const Dashboard = () => {
 
           {/* Link Upload */}
           {uploadTab === 'link' && (
-            <div className="border-2 border-dashed border-gray-300/50 dark:border-gray-600/50 rounded-xl p-12 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 shadow-xl">
+            <div className="border-2 border-dashed border-gray-300/60 dark:border-gray-600/60 rounded-2xl p-12 backdrop-blur-md bg-white/60 dark:bg-gray-800/60 shadow-2xl">
               <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -312,7 +329,7 @@ const Dashboard = () => {
           </h2>
 
           {lectures.length === 0 ? (
-            <div className="text-center py-12 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-white/20">
+            <div className="text-center py-12 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl shadow-2xl border border-white/40">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 dark:text-gray-400">
                 No lectures yet. Upload your first lecture above!
@@ -323,7 +340,7 @@ const Dashboard = () => {
               {lectures.map((lecture) => (
                 <div
                   key={lecture.lecture_id}
-                  className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all border border-white/30 dark:border-gray-700/30 hover:scale-105 duration-300"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 shadow-2xl hover:shadow-blue-500/20 transition-all border border-white/50 dark:border-gray-700/50 hover:scale-105 duration-300 hover:bg-white/90"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <FileText className="w-8 h-8 text-blue-600" />

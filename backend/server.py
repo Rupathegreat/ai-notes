@@ -331,51 +331,56 @@ async def download_video_from_url(url: str, output_path: str) -> str:
         # Use full path to yt-dlp
         yt_dlp_path = '/root/.venv/bin/yt-dlp'
         
-        # Use yt-dlp to download audio only with web client
+        # Simple and reliable command without cookies
         command = [
             yt_dlp_path,
-            '-f', 'bestaudio/best',  # Best audio format
+            '-f', 'bestaudio/best',
             '-x',  # Extract audio
             '--audio-format', 'mp3',
-            '--audio-quality', '5',  # Faster quality
+            '--audio-quality', '5',
             '--no-playlist',
             '--max-filesize', '100M',
-            '--extractor-args', 'youtube:player_client=web',  # Use web client
-            '--cookies-from-browser', 'chrome',  # Try to use cookies
             '--no-check-certificates',
+            '--prefer-free-formats',
+            '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             '-o', output_path,
             url
         ]
         
-        # Run in thread pool to not block async
+        logger.info(f"Downloading from URL: {url}")
+        
+        # Run in thread pool
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(
             None, 
             lambda: subprocess.run(command, capture_output=True, text=True, timeout=180)
         )
         
-        # Check if download succeeded
-        stdout_output = result.stdout or ""
-        stderr_output = result.stderr or ""
-        
-        # yt-dlp adds .mp3 extension
+        # Check for output file
         final_path = output_path if output_path.endswith('.mp3') else f"{output_path}.mp3"
         
-        # Check if file exists
         if os.path.exists(final_path):
-            logger.info(f"Successfully downloaded video to {final_path}")
+            file_size = os.path.getsize(final_path)
+            logger.info(f"Successfully downloaded to {final_path} ({file_size} bytes)")
             return final_path
         
-        # If failed, log and raise
-        error_msg = stderr_output or stdout_output
-        logger.error(f"yt-dlp download failed: {error_msg[:500]}")
-        raise Exception(f"Download failed: {error_msg[:200]}")
+        # Log full error for debugging
+        error_msg = result.stderr or result.stdout or "Unknown error"
+        logger.error(f"Download failed: {error_msg[:500]}")
+        
+        # Return more user-friendly error
+        if "403" in error_msg or "Forbidden" in error_msg:
+            raise Exception("Video blocked by platform. Try: 1) Direct file upload, 2) Vimeo links, 3) Direct MP4/MP3 URLs")
+        elif "not available" in error_msg.lower():
+            raise Exception("Video not available or private")
+        else:
+            raise Exception(f"Download failed. Try uploading the file directly instead.")
         
     except subprocess.TimeoutExpired:
-        raise Exception("Video download timed out (3 minutes)")
+        raise Exception("Download timed out. Try a shorter video or upload file directly.")
     except Exception as e:
         logger.error(f"Video download error: {e}")
-        raise Exception(f"Failed to download video: {str(e)}")
+        raise
 
 async def generate_structured_notes(text: str, title: str) -> Dict[str, Any]:
     """Generate structured notes using GPT-5.2"""
@@ -765,30 +770,71 @@ async def send_chat_message(
             {"_id": 0}
         )
         
+        # Build comprehensive context
         context = ""
         if notes_doc:
-            context = f"""
-Lecture Title: {notes_doc.get('title', 'Unknown')}
-Summary: {notes_doc.get('summary', '')}
-Key Concepts: {', '.join(notes_doc.get('key_concepts', []))}
+            # Include all important information
+            concepts = notes_doc.get('key_concepts', [])
+            points = notes_doc.get('important_points', [])
+            definitions = notes_doc.get('definitions', [])
+            faq = notes_doc.get('faq', [])
+            
+            context = f"""You have access to comprehensive lecture notes. Here's what you know:
+
+LECTURE TITLE: {notes_doc.get('title', 'Unknown')}
+
+SUMMARY:
+{notes_doc.get('summary', 'No summary available')}
+
+KEY CONCEPTS:
+{chr(10).join(f'- {concept}' for concept in concepts[:10])}
+
+IMPORTANT POINTS:
+{chr(10).join(f'- {point}' for point in points[:15])}
+
+DEFINITIONS:
+{chr(10).join(f'- {d.get("term", "")}: {d.get("definition", "")}' for d in definitions[:10])}
+
+FREQUENTLY ASKED QUESTIONS:
+{chr(10).join(f'Q: {q.get("question", "")}{chr(10)}A: {q.get("answer", "")}' for q in faq[:5])}
+
+KEYWORDS: {', '.join(notes_doc.get('keywords', [])[:20])}
 """
+        else:
+            context = "No lecture notes available yet. The lecture may still be processing."
         
-        # Get chat history
+        # Get chat history for continuity
         chat_history = await db.chat_messages.find(
             {"lecture_id": lecture_id, "user_id": current_user.user_id},
             {"_id": 0}
         ).sort("timestamp", 1).limit(10).to_list(10)
         
-        # Initialize chat
+        # Build conversation history
+        conversation_context = ""
+        if chat_history:
+            conversation_context = "\n\nPrevious conversation:\n"
+            for msg in chat_history[-5:]:  # Last 5 messages
+                role = "Student" if msg['role'] == 'user' else "You"
+                conversation_context += f"{role}: {msg['content']}\n"
+        
+        # Initialize chat with better system message
         chat = LlmChat(
             api_key=os.getenv("EMERGENT_LLM_KEY"),
             session_id=f"chat_{lecture_id}_{current_user.user_id}",
-            system_message=f"""You are a helpful AI tutor assistant. Answer questions about this lecture based on the context provided.
+            system_message=f"""You are an expert AI tutor and teaching assistant. Your role is to help students understand this lecture material deeply.
 
-Context:
 {context}
+{conversation_context}
 
-Be concise, accurate, and helpful. If you don't know something from the context, say so."""
+GUIDELINES:
+- Provide detailed, clear explanations using the lecture content
+- Use examples and analogies to clarify concepts
+- Break down complex topics into simpler parts
+- If asked about something not in the lecture, clearly state that and provide general knowledge if helpful
+- Be encouraging and supportive
+- Use bullet points and formatting for clarity
+- Reference specific concepts, definitions, or points from the lecture notes when relevant
+- If a student seems confused, ask clarifying questions"""
         ).with_model("openai", "gpt-5.2")
         
         # Send message

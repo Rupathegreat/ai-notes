@@ -255,8 +255,16 @@ const Dashboard = () => {
                   </button>
                 </div>
 
-                <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                  ✅ Supported: YouTube, Vimeo, Dailymotion, and direct video/audio URLs
+                <div className="mt-4 space-y-2">
+                  <div className="text-xs text-green-600 dark:text-green-400">
+                    ✅ Working: Direct MP4/MP3 URLs, Vimeo, educational sites
+                  </div>
+                  <div className="text-xs text-yellow-600 dark:text-yellow-400">
+                    ⚠️ YouTube: May fail due to anti-bot protection. Recommend uploading files directly.
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    💡 Tip: For YouTube, download video first then upload the file for 100% success
+                  </div>
                 </div>
               </div>
             </div>

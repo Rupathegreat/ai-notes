@@ -23,8 +23,27 @@ const Results = () => {
 
   useEffect(() => {
     if (notes?.flowchart && activeTab === 'flowchart') {
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
-      mermaid.contentLoaded();
+      // Initialize mermaid with better config
+      mermaid.initialize({ 
+        startOnLoad: false, 
+        theme: 'default',
+        securityLevel: 'loose',
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true
+        }
+      });
+      
+      // Render the flowchart
+      try {
+        const flowchartElement = document.querySelector('.mermaid');
+        if (flowchartElement) {
+          flowchartElement.removeAttribute('data-processed');
+          mermaid.contentLoaded();
+        }
+      } catch (error) {
+        console.error('Flowchart rendering error:', error);
+      }
     }
   }, [notes, activeTab]);
 

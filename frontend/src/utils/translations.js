@@ -698,12 +698,48 @@ export const translations = {
       dragDropFiles: "ลากและวางไฟล์ที่นี่ หรือคลิกเพื่อเลือก",
       supportedFormats: "รองรับ: PDF, PPT, เสียง, วิดีโอ, ข้อความ"
     }
+  },
+  te: {
+    translation: {
+      appName: "స్మార్ట్ నోట్స్",
+      welcome: "స్మార్ట్ నోట్స్‌కు స్వాగతం",
+      subtitle: "లెక్చర్‌లను నిర్మాణాత్మక అభ్యాస సామగ్రిగా మార్చండి",
+      login: "లాగిన్",
+      signup: "సైన్ అప్",
+      continueWithGoogle: "Google తో కొనసాగించండి",
+      logout: "లాగ్అవుట్",
+      settings: "సెట్టింగులు",
+      dashboard: "డాష్‌బోర్డ్",
+      uploadLecture: "లెక్చర్ అప్‌లోడ్ చేయండి",
+      myLectures: "నా లెక్చర్‌లు",
+      processing: "ప్రాసెస్ చేస్తోంది",
+      completed: "పూర్తయింది",
+      failed: "విఫలమైంది",
+      viewNotes: "నోట్స్ చూడండి",
+      summary: "సారాంశం",
+      keyConcepts: "ముఖ్య భావనలు",
+      importantPoints: "ముఖ్యమైన అంశాలు",
+      definitions: "నిర్వచనాలు",
+      faq: "తరచుగా అడిగే ప్రశ్నలు",
+      quiz: "క్విజ్",
+      flowchart: "ఫ్లోచార్ట్",
+      chatbot: "AI ట్యూటర్",
+      askQuestion: "ప్రశ్న అడగండి...",
+      send: "పంపండి",
+      language: "భాష",
+      theme: "థీమ్",
+      light: "లైట్",
+      dark: "డార్క్",
+      dragDropFiles: "ఫైల్‌లను ఇక్కడ డ్రాగ్ & డ్రాప్ చేయండి, లేదా ఎంచుకోవడానికి క్లిక్ చేయండి",
+      supportedFormats: "మద్దతు: PDF, PPT, ఆడియో, వీడియో, టెక్స్ట్"
+    }
   }
 };
 
 export const languageOptions = [
   { code: 'en', name: 'English' },
   { code: 'hi', name: 'हिन्दी (Hindi)' },
+  { code: 'te', name: 'తెలుగు (Telugu)' },
   { code: 'es', name: 'Español (Spanish)' },
   { code: 'fr', name: 'Français (French)' },
   { code: 'de', name: 'Deutsch (German)' },

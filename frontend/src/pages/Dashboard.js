@@ -18,6 +18,8 @@ const Dashboard = () => {
   const [uploading, setUploading] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [selectedLectureId, setSelectedLectureId] = useState(null);
+  const [uploadTab, setUploadTab] = useState('file'); // 'file' or 'link'
+  const [urlInput, setUrlInput] = useState('');
 
   useEffect(() => {
     loadLectures();
@@ -100,6 +102,29 @@ const Dashboard = () => {
     setChatbotOpen(true);
   };
 
+  const handleUrlUpload = async () => {
+    if (!urlInput.trim()) return;
+
+    setUploading(true);
+
+    try {
+      await axios.post(
+        `${API}/lectures/upload-url`,
+        { url: urlInput },
+        { withCredentials: true }
+      );
+
+      setUrlInput('');
+      await loadLectures();
+      alert('Link submitted successfully! Processing started.');
+    } catch (error) {
+      console.error('URL upload failed:', error);
+      alert('Failed to process link. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
       {/* Chatbot Sidebar */}
@@ -145,24 +170,97 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             {t('uploadLecture')}
           </h2>
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
-              isDragActive
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'
-            } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            data-testid="upload-dropzone"
-          >
-            <input {...getInputProps()} />
-            <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {uploading ? 'Uploading...' : t('dragDropFiles')}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t('supportedFormats')}
-            </p>
+
+          {/* Tabs */}
+          <div className="flex space-x-2 mb-4">
+            <button
+              onClick={() => setUploadTab('file')}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                uploadTab === 'file'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              data-testid="file-upload-tab"
+            >
+              📁 Upload File
+            </button>
+            <button
+              onClick={() => setUploadTab('link')}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                uploadTab === 'link'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              data-testid="link-upload-tab"
+            >
+              🔗 Paste Link
+            </button>
           </div>
+
+          {/* File Upload */}
+          {uploadTab === 'file' && (
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
+                isDragActive
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'
+              } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              data-testid="upload-dropzone"
+            >
+              <input {...getInputProps()} />
+              <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {uploading ? 'Uploading...' : t('dragDropFiles')}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('supportedFormats')}
+              </p>
+            </div>
+          )}
+
+          {/* Link Upload */}
+          {uploadTab === 'link' && (
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12">
+              <div className="max-w-2xl mx-auto">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">🎥</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Paste a Link
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    YouTube, Vimeo, or any video/audio link
+                  </p>
+                </div>
+
+                <div className="flex space-x-3">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-800 dark:text-white"
+                    disabled={uploading}
+                    data-testid="url-input"
+                  />
+                  <button
+                    onClick={handleUrlUpload}
+                    disabled={!urlInput.trim() || uploading}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                    data-testid="url-submit-btn"
+                  >
+                    {uploading ? 'Processing...' : 'Process'}
+                  </button>
+                </div>
+
+                <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                  ✅ Supported: YouTube, Vimeo, Dailymotion, and direct video/audio URLs
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Lectures List */}

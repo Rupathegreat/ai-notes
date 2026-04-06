@@ -389,7 +389,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation."""
             "flowchart": "graph TD\n  A[Start] --> B[Error]\n  B --> C[Retry]"
         }
 
-async def process_lecture_background(lecture_id: str, file_path: str, file_type: str, title: str, user_id: str):
+async def process_lecture_background(lecture_id: str, file_path: str, file_type: str, title: str, user_id: str, is_url: bool = False):
     """Background task to process lecture and generate notes"""
     try:
         # Update status to processing
@@ -400,7 +400,11 @@ async def process_lecture_background(lecture_id: str, file_path: str, file_type:
         
         # Extract text based on file type
         text = ""
-        if file_type == "application/pdf":
+        
+        if is_url:
+            # For URLs, download first then transcribe
+            text = await transcribe_audio_file(file_path)
+        elif file_type == "application/pdf":
             text = await extract_text_from_pdf(file_path)
         elif file_type in ["application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"]:
             text = await extract_text_from_pptx(file_path)
@@ -569,6 +573,88 @@ async def get_lecture(
         raise HTTPException(status_code=404, detail="Lecture not found")
     
     return lecture_doc
+
+class UrlUploadRequest(BaseModel):
+    url: str
+
+@api_router.post("/lectures/upload-url")
+async def upload_lecture_url(
+    request: UrlUploadRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a lecture from URL (YouTube, Vimeo, etc.)"""
+    try:
+        url = request.url.strip()
+        
+        if not url:
+            raise HTTPException(status_code=400, detail="URL is required")
+        
+        # Generate lecture ID and file path
+        lecture_id = f"lecture_{uuid.uuid4().hex[:12]}"
+        audio_path = UPLOAD_DIR / f"{lecture_id}"
+        
+        # Extract title from URL
+        title = url.split('/')[-1][:50] or "Video Lecture"
+        
+        # Create lecture document
+        lecture_doc = {
+            "lecture_id": lecture_id,
+            "user_id": current_user.user_id,
+            "title": title,
+            "file_name": url,
+            "file_path": str(audio_path),
+            "file_type": "video/url",
+            "status": "processing",
+            "error_message": None,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.lectures.insert_one(lecture_doc)
+        
+        # Download video and process in background
+        async def download_and_process():
+            try:
+                # Download video/audio
+                downloaded_path = await download_video_from_url(url, str(audio_path))
+                
+                # Update file path
+                await db.lectures.update_one(
+                    {"lecture_id": lecture_id},
+                    {"$set": {"file_path": downloaded_path}}
+                )
+                
+                # Process lecture
+                await process_lecture_background(
+                    lecture_id=lecture_id,
+                    file_path=downloaded_path,
+                    file_type="audio/mp3",
+                    title=title,
+                    user_id=current_user.user_id,
+                    is_url=True
+                )
+            except Exception as e:
+                logger.error(f"URL processing error: {e}")
+                await db.lectures.update_one(
+                    {"lecture_id": lecture_id},
+                    {"$set": {
+                        "status": "failed",
+                        "error_message": str(e)
+                    }}
+                )
+        
+        # Start background task
+        asyncio.create_task(download_and_process())
+        
+        return {
+            "lecture_id": lecture_id,
+            "status": "processing",
+            "message": "URL submitted successfully. Downloading and processing started."
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"URL upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"URL upload failed: {str(e)}")
 
 # ==================== NOTES ENDPOINTS ====================
 

@@ -12,6 +12,7 @@ from pathlib import Path
 import uuid
 import aiofiles
 import asyncio
+import subprocess
 from pypdf import PdfReader
 from pptx import Presentation
 import io
@@ -323,6 +324,35 @@ async def transcribe_audio_file(file_path: str) -> str:
     except Exception as e:
         logger.error(f"Transcription error: {e}")
         raise Exception(f"Failed to transcribe audio: {str(e)}")
+
+async def download_video_from_url(url: str, output_path: str) -> str:
+    """Download video/audio from URL (YouTube, etc.) using yt-dlp"""
+    try:
+        import subprocess
+        
+        # Use yt-dlp to download audio only
+        command = [
+            'yt-dlp',
+            '-x',  # Extract audio
+            '--audio-format', 'mp3',
+            '--audio-quality', '0',
+            '-o', output_path,
+            url
+        ]
+        
+        result = subprocess.run(command, capture_output=True, text=True, timeout=300)
+        
+        if result.returncode != 0:
+            raise Exception(f"yt-dlp error: {result.stderr}")
+        
+        # yt-dlp adds .mp3 extension
+        final_path = output_path if output_path.endswith('.mp3') else f"{output_path}.mp3"
+        return final_path
+    except subprocess.TimeoutExpired:
+        raise Exception("Video download timed out (5 minutes)")
+    except Exception as e:
+        logger.error(f"Video download error: {e}")
+        raise Exception(f"Failed to download video: {str(e)}")
 
 async def generate_structured_notes(text: str, title: str) -> Dict[str, Any]:
     """Generate structured notes using GPT-5.2"""

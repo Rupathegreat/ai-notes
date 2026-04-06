@@ -23,42 +23,35 @@ const Results = () => {
 
   useEffect(() => {
     if (notes?.flowchart && activeTab === 'flowchart') {
-      // Initialize mermaid with better config for flowcharts
-      mermaid.initialize({ 
-        startOnLoad: true, 
-        theme: 'base',
-        themeVariables: {
-          primaryColor: '#3b82f6',
-          primaryTextColor: '#1f2937',
-          primaryBorderColor: '#2563eb',
-          lineColor: '#6b7280',
-          secondaryColor: '#8b5cf6',
-          tertiaryColor: '#ec4899'
-        },
-        securityLevel: 'loose',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        flowchart: {
-          useMaxWidth: true,
-          htmlLabels: true,
-          curve: 'basis',
-          padding: 20
-        }
-      });
-      
-      // Render the flowchart with a small delay to ensure DOM is ready
-      setTimeout(() => {
+      const renderFlowchart = async () => {
         try {
-          const elements = document.querySelectorAll('.mermaid');
-          elements.forEach(element => {
-            if (!element.getAttribute('data-processed')) {
-              element.innerHTML = notes.flowchart;
-            }
-          });
-          mermaid.contentLoaded();
+          // Simple and stable mermaid rendering
+          const element = document.getElementById('flowchart-container');
+          if (element && notes.flowchart) {
+            // Clear previous content
+            element.innerHTML = notes.flowchart;
+            
+            // Initialize mermaid
+            mermaid.initialize({
+              startOnLoad: false,
+              theme: 'default',
+              securityLevel: 'loose'
+            });
+            
+            // Render
+            await mermaid.init(undefined, element);
+          }
         } catch (error) {
-          console.error('Flowchart rendering error:', error);
+          console.error('Flowchart error:', error);
+          // Show fallback
+          const element = document.getElementById('flowchart-container');
+          if (element) {
+            element.innerHTML = '<p class="text-gray-600 dark:text-gray-400">Flowchart generation in progress...</p>';
+          }
         }
-      }, 200);
+      };
+      
+      renderFlowchart();
     }
   }, [notes, activeTab]);
 
@@ -258,16 +251,7 @@ const Results = () => {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('flowchart')}</h2>
               <div className="bg-white dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 overflow-auto">
                 <div className="flex justify-center items-center min-h-[400px]">
-                  <div 
-                    className="mermaid w-full" 
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      fontSize: '16px'
-                    }}
-                  >
-                    {notes.flowchart}
-                  </div>
+                  <pre id="flowchart-container" className="mermaid w-full text-center"></pre>
                 </div>
               </div>
               <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">

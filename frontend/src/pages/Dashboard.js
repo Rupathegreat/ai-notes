@@ -126,13 +126,27 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
-      {/* Chatbot Sidebar */}
-      <Chatbot 
-        lectureId={selectedLectureId} 
-        isOpen={chatbotOpen}
-        onToggle={() => setChatbotOpen(!chatbotOpen)}
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
+      {/* Background Image */}
+      <div 
+        className="fixed inset-0 z-0 opacity-10 dark:opacity-5"
+        style={{
+          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'blur(2px)'
+        }}
       />
+      
+      {/* Content Overlay */}
+      <div className="relative z-10">
+        {/* Chatbot Sidebar */}
+        <Chatbot 
+          lectureId={selectedLectureId} 
+          isOpen={chatbotOpen}
+          onToggle={() => setChatbotOpen(!chatbotOpen)}
+        />
 
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -342,6 +356,7 @@ const Dashboard = () => {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 };

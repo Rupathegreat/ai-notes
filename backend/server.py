@@ -328,28 +328,51 @@ async def transcribe_audio_file(file_path: str) -> str:
 async def download_video_from_url(url: str, output_path: str) -> str:
     """Download video/audio from URL (YouTube, etc.) using yt-dlp"""
     try:
-        import subprocess
+        # Use full path to yt-dlp
+        yt_dlp_path = '/root/.venv/bin/yt-dlp'
         
-        # Use yt-dlp to download audio only
+        # Use yt-dlp to download audio only with web client
         command = [
-            'yt-dlp',
+            yt_dlp_path,
+            '-f', 'bestaudio/best',  # Best audio format
             '-x',  # Extract audio
             '--audio-format', 'mp3',
-            '--audio-quality', '0',
+            '--audio-quality', '5',  # Faster quality
+            '--no-playlist',
+            '--max-filesize', '100M',
+            '--extractor-args', 'youtube:player_client=web',  # Use web client
+            '--cookies-from-browser', 'chrome',  # Try to use cookies
+            '--no-check-certificates',
             '-o', output_path,
             url
         ]
         
-        result = subprocess.run(command, capture_output=True, text=True, timeout=300)
+        # Run in thread pool to not block async
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None, 
+            lambda: subprocess.run(command, capture_output=True, text=True, timeout=180)
+        )
         
-        if result.returncode != 0:
-            raise Exception(f"yt-dlp error: {result.stderr}")
+        # Check if download succeeded
+        stdout_output = result.stdout or ""
+        stderr_output = result.stderr or ""
         
         # yt-dlp adds .mp3 extension
         final_path = output_path if output_path.endswith('.mp3') else f"{output_path}.mp3"
-        return final_path
+        
+        # Check if file exists
+        if os.path.exists(final_path):
+            logger.info(f"Successfully downloaded video to {final_path}")
+            return final_path
+        
+        # If failed, log and raise
+        error_msg = stderr_output or stdout_output
+        logger.error(f"yt-dlp download failed: {error_msg[:500]}")
+        raise Exception(f"Download failed: {error_msg[:200]}")
+        
     except subprocess.TimeoutExpired:
-        raise Exception("Video download timed out (5 minutes)")
+        raise Exception("Video download timed out (3 minutes)")
     except Exception as e:
         logger.error(f"Video download error: {e}")
         raise Exception(f"Failed to download video: {str(e)}")
@@ -363,12 +386,15 @@ async def generate_structured_notes(text: str, title: str) -> Dict[str, Any]:
             system_message="You are an expert educational content analyzer. Generate structured learning materials from lecture content."
         ).with_model("openai", "gpt-5.2")
         
+        # Limit text to 8000 chars for faster processing
+        text_sample = text[:8000] if len(text) > 8000 else text
+        
         prompt = f"""Analyze this lecture content and generate comprehensive structured notes in JSON format.
 
 Lecture Title: {title}
 
 Content:
-{text[:15000]}
+{text_sample}
 
 Generate a JSON response with the following structure:
 {{

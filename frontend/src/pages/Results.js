@@ -25,7 +25,7 @@ const Results = () => {
     if (notes?.flowchart && activeTab === 'flowchart') {
       // Initialize mermaid with better config for flowcharts
       mermaid.initialize({ 
-        startOnLoad: false, 
+        startOnLoad: true, 
         theme: 'base',
         themeVariables: {
           primaryColor: '#3b82f6',
@@ -48,18 +48,17 @@ const Results = () => {
       // Render the flowchart with a small delay to ensure DOM is ready
       setTimeout(() => {
         try {
-          const flowchartElement = document.querySelector('.mermaid');
-          if (flowchartElement) {
-            flowchartElement.removeAttribute('data-processed');
-            flowchartElement.innerHTML = notes.flowchart;
-            mermaid.run({
-              querySelector: '.mermaid'
-            });
-          }
+          const elements = document.querySelectorAll('.mermaid');
+          elements.forEach(element => {
+            if (!element.getAttribute('data-processed')) {
+              element.innerHTML = notes.flowchart;
+            }
+          });
+          mermaid.contentLoaded();
         } catch (error) {
           console.error('Flowchart rendering error:', error);
         }
-      }, 100);
+      }, 200);
     }
   }, [notes, activeTab]);
 

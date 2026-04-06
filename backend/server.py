@@ -339,7 +339,7 @@ async def download_video_from_url(url: str, output_path: str) -> str:
             '--audio-format', 'mp3',
             '--audio-quality', '5',
             '--no-playlist',
-            '--max-filesize', '100M',
+            '--max-filesize', '1000M',
             '--no-check-certificates',
             '--prefer-free-formats',
             '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -353,7 +353,7 @@ async def download_video_from_url(url: str, output_path: str) -> str:
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(
             None, 
-            lambda: subprocess.run(command, capture_output=True, text=True, timeout=180)
+            lambda: subprocess.run(command, capture_output=True, text=True, timeout=900)
         )
         
         # Check for output file

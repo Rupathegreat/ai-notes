@@ -29,28 +29,24 @@ const Results = () => {
     if (notes?.flowchart && activeTab === 'flowchart') {
       const renderFlowchart = async () => {
         try {
-          // Simple and stable mermaid rendering
           const element = document.getElementById('flowchart-container');
           if (element && notes.flowchart) {
-            // Clear previous content
-            element.innerHTML = notes.flowchart;
-            
-            // Initialize mermaid
             mermaid.initialize({
               startOnLoad: false,
               theme: 'default',
               securityLevel: 'loose'
             });
             
-            // Render
-            await mermaid.init(undefined, element);
+            // Generate stable ID for the render
+            const id = `mermaid-svg-${Date.now()}`;
+            const { svg } = await mermaid.render(id, notes.flowchart);
+            element.innerHTML = svg;
           }
         } catch (error) {
           console.error('Flowchart error:', error);
-          // Show fallback
           const element = document.getElementById('flowchart-container');
           if (element) {
-            element.innerHTML = '<p class="text-gray-600 dark:text-gray-400">Flowchart generation in progress...</p>';
+            element.innerHTML = '<p class="text-red-500">Failed to render flowchart. The AI might have generated invalid syntax.</p>';
           }
         }
       };

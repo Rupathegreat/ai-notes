@@ -16,6 +16,7 @@ const Results = () => {
   const [lecture, setLecture] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
+  const [quizAnswers, setQuizAnswers] = useState({}); // Track user's answers
 
   useEffect(() => {
     loadData();
@@ -64,12 +65,27 @@ const Results = () => {
       ]);
       setNotes(notesRes.data);
       setLecture(lectureRes.data);
+      // Initialize quiz answers state
+      if (notesRes.data?.quiz) {
+        const initialAnswers = {};
+        notesRes.data.quiz.forEach((_, index) => {
+          initialAnswers[index] = null;
+        });
+        setQuizAnswers(initialAnswers);
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
       alert('Failed to load notes');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuizAnswer = (questionIndex, optionIndex) => {
+    setQuizAnswers(prev => ({
+      ...prev,
+      [questionIndex]: optionIndex
+    }));
   };
 
   if (loading) {
@@ -218,31 +234,113 @@ const Results = () => {
             <div data-testid="quiz-content">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('quiz')}</h2>
               <div className="space-y-6">
-                {notes.quiz.map((q, index) => (
-                  <div key={index} className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
-                      {index + 1}. {q.question}
-                    </h3>
-                    <div className="space-y-2">
-                      {q.options.map((option, optIndex) => (
-                        <div
-                          key={optIndex}
-                          className={`p-3 rounded-lg border ${
-                            optIndex === q.correctAnswerIndex
-                              ? 'bg-green-100 dark:bg-green-900/30 border-green-500'
-                              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                          }`}
-                        >
-                          <span className="font-medium">{String.fromCharCode(65 + optIndex)}.</span> {option}
-                          {optIndex === q.correctAnswerIndex && (
-                            <span className="ml-2 text-green-600 dark:text-green-400 font-semibold">✓ Correct</span>
-                          )}
+                {notes.quiz.map((q, index) => {
+                  const userAnswer = quizAnswers[index];
+                  const hasAnswered = userAnswer !== null;
+                  const isCorrect = hasAnswered && userAnswer === q.correctAnswerIndex;
+
+                  return (
+                    <div key={index} className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border-2 border-gray-200 dark:border-gray-600">
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-4 text-lg">
+                        {index + 1}. {q.question}
+                      </h3>
+                      <div className="space-y-3">
+                        {q.options.map((option, optIndex) => {
+                          const isThisCorrect = optIndex === q.correctAnswerIndex;
+                          const isSelected = userAnswer === optIndex;
+                          
+                          let buttonClass = "w-full text-left p-4 rounded-lg border-2 transition-all ";
+                          
+                          if (!hasAnswered) {
+                            // Not answered yet - clickable
+                            buttonClass += "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer";
+                          } else {
+                            // Has answered - show results
+                            if (isThisCorrect) {
+                              buttonClass += "bg-green-100 dark:bg-green-900/30 border-green-500 dark:border-green-400";
+                            } else if (isSelected && !isCorrect) {
+                              buttonClass += "bg-red-100 dark:bg-red-900/30 border-red-500 dark:border-red-400";
+                            } else {
+                              buttonClass += "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 opacity-60";
+                            }
+                          }
+
+                          return (
+                            <button
+                              key={optIndex}
+                              onClick={() => !hasAnswered && handleQuizAnswer(index, optIndex)}
+                              disabled={hasAnswered}
+                              className={buttonClass}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {String.fromCharCode(65 + optIndex)}. {option}
+                                </span>
+                                {hasAnswered && isThisCorrect && (
+                                  <span className="text-green-600 dark:text-green-400 font-bold text-xl">✓</span>
+                                )}
+                                {hasAnswered && isSelected && !isCorrect && (
+                                  <span className="text-red-600 dark:text-red-400 font-bold text-xl">✗</span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Show explanation after answering */}
+                      {hasAnswered && (
+                        <div className={`mt-4 p-4 rounded-lg ${
+                          isCorrect 
+                            ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700' 
+                            : 'bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700'
+                        }`}>
+                          <div className="flex items-start space-x-2">
+                            <span className="text-2xl">
+                              {isCorrect ? '🎉' : '📚'}
+                            </span>
+                            <div>
+                              <p className={`font-semibold mb-2 ${
+                                isCorrect 
+                                  ? 'text-green-800 dark:text-green-300' 
+                                  : 'text-red-800 dark:text-red-300'
+                              }`}>
+                                {isCorrect ? 'Correct!' : 'Incorrect'}
+                              </p>
+                              <p className="text-gray-700 dark:text-gray-300">
+                                <strong>Explanation:</strong> {q.explanation || `The correct answer is ${String.fromCharCode(65 + q.correctAnswerIndex)}. ${q.options[q.correctAnswerIndex]}`}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      ))}
+                      )}
+
+                      {/* Prompt to answer */}
+                      {!hasAnswered && (
+                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                          <p className="text-sm text-blue-800 dark:text-blue-300">
+                            💡 Click on an option to submit your answer
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
+              {/* Quiz Summary */}
+              {Object.keys(quizAnswers).length > 0 && Object.values(quizAnswers).every(a => a !== null) && (
+                <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border-2 border-blue-300 dark:border-blue-700">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                    Quiz Complete! 🎊
+                  </h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-300">
+                    You got <strong className="text-blue-600 dark:text-blue-400">
+                      {Object.entries(quizAnswers).filter(([idx, ans]) => ans === notes.quiz[idx].correctAnswerIndex).length}
+                    </strong> out of <strong className="text-purple-600 dark:text-purple-400">{notes.quiz.length}</strong> correct!
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

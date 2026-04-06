@@ -410,7 +410,7 @@ Generate a JSON response with the following structure:
   "definitions": [{{"term": "string", "definition": "string"}}, ...] (5-10 key terms),
   "keywords": ["keyword1", "keyword2", ...] (10-15 keywords),
   "faq": [{{"question": "string", "answer": "string"}}, ...] (5-8 FAQs),
-  "quiz": [{{"question": "string", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}}, ...] (5 questions),
+  "quiz": [{{"question": "string", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0, "explanation": "why this is correct"}}, ...] (5 questions),
   "flowchart": "string (Mermaid flowchart syntax - MUST be a proper flowchart showing process flow)"
 }}
 
@@ -474,7 +474,7 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation."""
             "definitions": [{"term": "Error", "definition": "Failed to extract definitions"}],
             "keywords": ["error"],
             "faq": [{"question": "Why did this fail?", "answer": "The AI service encountered an error. Please try again."}],
-            "quiz": [{"question": "Sample question", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}],
+            "quiz": [{"question": "Sample question", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0, "explanation": "This is a sample explanation"}],
             "flowchart": """flowchart TD
     Start([Start]) --> Process[Processing]
     Process --> Error{{Error Occurred}}

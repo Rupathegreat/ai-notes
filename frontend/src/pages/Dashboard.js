@@ -126,20 +126,37 @@ const Dashboard = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
-      {/* Background Image */}
-      <div 
-        className="fixed inset-0 z-0 opacity-10 dark:opacity-5"
-        style={{
-          backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          filter: 'blur(2px)'
-        }}
-      />
+    <div className={`min-h-screen relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
+      {/* Beautiful Background with Gradient Overlay */}
+      <div className="fixed inset-0 z-0">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: '0.25'
+          }}
+        />
+        {/* Gradient Overlay for Beauty */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(236, 72, 153, 0.1) 100%)'
+          }}
+        />
+        {/* Subtle Pattern Overlay */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }}
+        />
+      </div>
       
-      {/* Content Overlay */}
+      {/* Content with Glass Effect */}
       <div className="relative z-10">
         {/* Chatbot Sidebar */}
         <Chatbot 
@@ -149,7 +166,7 @@ const Dashboard = () => {
         />
 
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -167,7 +184,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={() => navigate('/settings')}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg hover:bg-white/70 dark:hover:bg-gray-600/70 transition-all shadow-lg border border-white/20"
               data-testid="settings-btn"
             >
               <SettingsIcon className="w-5 h-5" />
@@ -215,10 +232,10 @@ const Dashboard = () => {
           {uploadTab === 'file' && (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
+              className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 shadow-xl ${
                 isDragActive
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'
+                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/30 scale-105'
+                  : 'border-gray-300/50 dark:border-gray-600/50 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-2xl'
               } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               data-testid="upload-dropzone"
             >
@@ -235,7 +252,7 @@ const Dashboard = () => {
 
           {/* Link Upload */}
           {uploadTab === 'link' && (
-            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12">
+            <div className="border-2 border-dashed border-gray-300/50 dark:border-gray-600/50 rounded-xl p-12 backdrop-blur-sm bg-white/40 dark:bg-gray-800/40 shadow-xl">
               <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -292,7 +309,7 @@ const Dashboard = () => {
           </h2>
 
           {lectures.length === 0 ? (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl">
+            <div className="text-center py-12 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-white/20">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 dark:text-gray-400">
                 No lectures yet. Upload your first lecture above!
@@ -303,7 +320,7 @@ const Dashboard = () => {
               {lectures.map((lecture) => (
                 <div
                   key={lecture.lecture_id}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700"
+                  className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all border border-white/30 dark:border-gray-700/30 hover:scale-105 duration-300"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <FileText className="w-8 h-8 text-blue-600" />

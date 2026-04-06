@@ -23,27 +23,43 @@ const Results = () => {
 
   useEffect(() => {
     if (notes?.flowchart && activeTab === 'flowchart') {
-      // Initialize mermaid with better config
+      // Initialize mermaid with better config for flowcharts
       mermaid.initialize({ 
         startOnLoad: false, 
-        theme: 'default',
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#3b82f6',
+          primaryTextColor: '#1f2937',
+          primaryBorderColor: '#2563eb',
+          lineColor: '#6b7280',
+          secondaryColor: '#8b5cf6',
+          tertiaryColor: '#ec4899'
+        },
         securityLevel: 'loose',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
         flowchart: {
           useMaxWidth: true,
-          htmlLabels: true
+          htmlLabels: true,
+          curve: 'basis',
+          padding: 20
         }
       });
       
-      // Render the flowchart
-      try {
-        const flowchartElement = document.querySelector('.mermaid');
-        if (flowchartElement) {
-          flowchartElement.removeAttribute('data-processed');
-          mermaid.contentLoaded();
+      // Render the flowchart with a small delay to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          const flowchartElement = document.querySelector('.mermaid');
+          if (flowchartElement) {
+            flowchartElement.removeAttribute('data-processed');
+            flowchartElement.innerHTML = notes.flowchart;
+            mermaid.run({
+              querySelector: '.mermaid'
+            });
+          }
+        } catch (error) {
+          console.error('Flowchart rendering error:', error);
         }
-      } catch (error) {
-        console.error('Flowchart rendering error:', error);
-      }
+      }, 100);
     }
   }, [notes, activeTab]);
 
@@ -241,8 +257,24 @@ const Results = () => {
           {activeTab === 'flowchart' && (
             <div data-testid="flowchart-content">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('flowchart')}</h2>
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg overflow-auto">
-                <div className="mermaid">{notes.flowchart}</div>
+              <div className="bg-white dark:bg-gray-800 p-8 rounded-lg border border-gray-200 dark:border-gray-700 overflow-auto">
+                <div className="flex justify-center items-center min-h-[400px]">
+                  <div 
+                    className="mermaid w-full" 
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      fontSize: '16px'
+                    }}
+                  >
+                    {notes.flowchart}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  💡 <strong>Tip:</strong> This flowchart visualizes the main process or flow of concepts from the lecture. Follow the arrows to understand the sequence!
+                </p>
               </div>
             </div>
           )}

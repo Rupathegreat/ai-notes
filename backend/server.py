@@ -411,8 +411,23 @@ Generate a JSON response with the following structure:
   "keywords": ["keyword1", "keyword2", ...] (10-15 keywords),
   "faq": [{{"question": "string", "answer": "string"}}, ...] (5-8 FAQs),
   "quiz": [{{"question": "string", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}}, ...] (5 questions),
-  "flowchart": "string (Mermaid flowchart syntax)"
+  "flowchart": "string (Mermaid flowchart syntax - MUST be a proper flowchart showing process flow)"
 }}
+
+IMPORTANT FOR FLOWCHART:
+- Use proper Mermaid flowchart syntax
+- Start with: flowchart TD
+- Use shapes: [] for process, {{}} for decision, [()] for start/end
+- Connect with arrows: -->
+- Example format:
+  flowchart TD
+      A[Start] --> B{{Decision?}}
+      B -->|Yes| C[Process 1]
+      B -->|No| D[Process 2]
+      C --> E[End]
+      D --> E
+
+Create a flowchart that shows the main flow/process of the lecture topic.
 
 IMPORTANT: Return ONLY valid JSON, no markdown, no explanation."""
 
@@ -433,6 +448,19 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation."""
         response_text = response_text.strip()
         
         notes_data = json.loads(response_text)
+        
+        # Validate and fix flowchart if needed
+        if not notes_data.get('flowchart') or len(notes_data.get('flowchart', '')) < 20:
+            notes_data['flowchart'] = """flowchart TD
+    Start([Start Learning]) --> Intro[Introduction to Topic]
+    Intro --> Core[Core Concepts]
+    Core --> Practice{{Practice Exercises?}}
+    Practice -->|Yes| Apply[Apply Knowledge]
+    Practice -->|No| Review[Review Material]
+    Apply --> Test[Take Quiz]
+    Review --> Test
+    Test --> End([Complete])"""
+        
         return notes_data
     
     except Exception as e:
@@ -447,7 +475,11 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no explanation."""
             "keywords": ["error"],
             "faq": [{"question": "Why did this fail?", "answer": "The AI service encountered an error. Please try again."}],
             "quiz": [{"question": "Sample question", "options": ["A", "B", "C", "D"], "correctAnswerIndex": 0}],
-            "flowchart": "graph TD\n  A[Start] --> B[Error]\n  B --> C[Retry]"
+            "flowchart": """flowchart TD
+    Start([Start]) --> Process[Processing]
+    Process --> Error{{Error Occurred}}
+    Error --> Retry[Please Retry]
+    Retry --> End([End])"""
         }
 
 async def process_lecture_background(lecture_id: str, file_path: str, file_type: str, title: str, user_id: str, is_url: bool = False):

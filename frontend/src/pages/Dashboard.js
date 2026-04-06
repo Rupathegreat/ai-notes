@@ -127,56 +127,56 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-screen relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
-      {/* Elegant Bright Background */}
+      {/* Stunning Teal/Green Themed Background */}
       <div className="fixed inset-0 z-0">
-        {/* Main Background Image - Bright & Clear */}
+        {/* Main Background Image - Reading Character with Teal/Green Theme */}
         <div 
           className="absolute inset-0"
           style={{
-            backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
-            backgroundSize: 'contain',
+            backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/m23r8dd1_WhatsApp%20Image%202026-04-06%20at%203.13.17%20PM.jpeg)',
+            backgroundSize: 'cover',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            opacity: '0.6',
-            filter: 'brightness(1.5) saturate(1.2) contrast(1.1)',
-            transform: 'scale(1.1)'
+            opacity: '0.7',
+            filter: 'brightness(1.1) saturate(1.3)'
           }}
         />
         
-        {/* Elegant Gradient Overlay - Soft & Premium */}
+        {/* Teal & Green Gradient Overlay - Matching Image Colors */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(147, 51, 234, 0.15) 25%, rgba(236, 72, 153, 0.12) 50%, rgba(59, 130, 246, 0.1) 75%, rgba(147, 51, 234, 0.12) 100%)'
+            background: 'linear-gradient(135deg, rgba(6, 78, 78, 0.15) 0%, rgba(16, 185, 129, 0.12) 25%, rgba(6, 182, 212, 0.15) 50%, rgba(5, 150, 105, 0.12) 75%, rgba(20, 184, 166, 0.15) 100%)'
           }}
         />
         
-        {/* Soft White Glow for Elegance */}
+        {/* Neon Green Glow Effects - Like the Image */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15), transparent 60%)'
+            background: 'radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.25), transparent 50%), radial-gradient(circle at 70% 60%, rgba(6, 182, 212, 0.2), transparent 50%)',
+            mixBlendMode: 'screen'
           }}
         />
         
-        {/* Premium Light Rays Effect */}
+        {/* Dark Teal Vignette for Depth */}
         <div 
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0"
           style={{
-            background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.05) 10px, rgba(255, 255, 255, 0.05) 20px)'
+            background: 'radial-gradient(ellipse at center, transparent 30%, rgba(6, 78, 78, 0.4) 100%)'
           }}
         />
         
-        {/* Bottom Fade for Clean Look */}
+        {/* Subtle Grid Pattern - Tech Feel */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-32"
+          className="absolute inset-0 opacity-10"
           style={{
-            background: 'linear-gradient(to top, rgba(249, 250, 251, 0.8), transparent)'
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2310b981' fill-opacity='0.3'%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20z'/%3E%3C/g%3E%3C/svg%3E")`
           }}
         />
       </div>
       
-      {/* Content with Glass Effect */}
+      {/* Content with Teal-Themed Glass Effect */}
       <div className="relative z-10">
         {/* Chatbot Sidebar */}
         <Chatbot 
@@ -186,7 +186,7 @@ const Dashboard = () => {
         />
 
       {/* Header */}
-      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-xl border-b border-white/40 dark:border-gray-700/40">
+      <header className="bg-gradient-to-r from-teal-900/85 via-cyan-900/80 to-teal-900/85 dark:bg-teal-950/90 backdrop-blur-xl shadow-xl border-b border-emerald-400/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -252,10 +252,10 @@ const Dashboard = () => {
           {uploadTab === 'file' && (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all backdrop-blur-md bg-white/60 dark:bg-gray-800/60 shadow-2xl ${
+              className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all backdrop-blur-md bg-teal-900/40 dark:bg-teal-950/60 shadow-2xl ${
                 isDragActive
-                  ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-900/40 scale-105 shadow-blue-500/50'
-                  : 'border-gray-300/60 dark:border-gray-600/60 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-2xl hover:bg-white/70'
+                  ? 'border-emerald-400 bg-emerald-900/50 dark:bg-emerald-900/60 scale-105 shadow-emerald-500/50'
+                  : 'border-teal-500/50 dark:border-teal-600/60 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-2xl hover:bg-teal-900/50 hover:shadow-emerald-500/30'
               } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               data-testid="upload-dropzone"
             >
@@ -272,7 +272,7 @@ const Dashboard = () => {
 
           {/* Link Upload */}
           {uploadTab === 'link' && (
-            <div className="border-2 border-dashed border-gray-300/60 dark:border-gray-600/60 rounded-2xl p-12 backdrop-blur-md bg-white/60 dark:bg-gray-800/60 shadow-2xl">
+            <div className="border-2 border-dashed border-teal-500/50 dark:border-teal-600/60 rounded-2xl p-12 backdrop-blur-md bg-teal-900/40 dark:bg-teal-950/60 shadow-2xl shadow-emerald-500/20">
               <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -329,8 +329,8 @@ const Dashboard = () => {
           </h2>
 
           {lectures.length === 0 ? (
-            <div className="text-center py-12 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl shadow-2xl border border-white/40">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <div className="text-center py-12 bg-teal-900/60 dark:bg-teal-950/70 backdrop-blur-md rounded-2xl shadow-2xl border border-emerald-400/30">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-emerald-400" />
               <p className="text-gray-600 dark:text-gray-400">
                 No lectures yet. Upload your first lecture above!
               </p>
@@ -340,7 +340,7 @@ const Dashboard = () => {
               {lectures.map((lecture) => (
                 <div
                   key={lecture.lecture_id}
-                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 shadow-2xl hover:shadow-blue-500/20 transition-all border border-white/50 dark:border-gray-700/50 hover:scale-105 duration-300 hover:bg-white/90"
+                  className="bg-teal-900/70 dark:bg-teal-950/80 backdrop-blur-lg rounded-2xl p-6 shadow-2xl hover:shadow-emerald-500/30 transition-all border border-emerald-400/30 dark:border-teal-600/50 hover:scale-105 duration-300 hover:bg-teal-900/80 hover:border-emerald-400/50"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <FileText className="w-8 h-8 text-blue-600" />
@@ -399,3 +399,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

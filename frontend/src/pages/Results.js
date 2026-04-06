@@ -3,7 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import mermaid from 'mermaid';
-import { ArrowLeft, BookOpen, Lightbulb, FileText, HelpCircle, BrainCircuit, GitBranch } from 'lucide-react';
+import { ArrowLeft, BookOpen, Lightbulb, FileText, HelpCircle, BrainCircuit, GitBranch, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { saveAs } from 'file-saver';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -88,6 +91,238 @@ const Results = () => {
     }));
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 15;
+    let yPosition = 20;
+
+    // Title
+    doc.setFontSize(20);
+    doc.text(notes.title || 'Lecture Notes', margin, yPosition);
+    yPosition += 15;
+
+    // Summary
+    doc.setFontSize(16);
+    doc.text('Summary', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(11);
+    const summaryLines = doc.splitTextToSize(notes.summary || '', pageWidth - 2 * margin);
+    doc.text(summaryLines, margin, yPosition);
+    yPosition += summaryLines.length * 5 + 10;
+
+    // Important Points
+    if (notes.important_points && notes.important_points.length > 0) {
+      doc.setFontSize(14);
+      doc.text('Important Points', margin, yPosition);
+      yPosition += 8;
+      doc.setFontSize(11);
+      notes.important_points.forEach((point, idx) => {
+        const pointText = `${idx + 1}. ${point}`;
+        const pointLines = doc.splitTextToSize(pointText, pageWidth - 2 * margin);
+        if (yPosition + pointLines.length * 5 > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(pointLines, margin, yPosition);
+        yPosition += pointLines.length * 5 + 3;
+      });
+      yPosition += 5;
+    }
+
+    // Key Concepts
+    if (notes.key_concepts && notes.key_concepts.length > 0) {
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.setFontSize(14);
+      doc.text('Key Concepts', margin, yPosition);
+      yPosition += 8;
+      doc.setFontSize(11);
+      notes.key_concepts.forEach((concept, idx) => {
+        const conceptText = `• ${concept}`;
+        const conceptLines = doc.splitTextToSize(conceptText, pageWidth - 2 * margin);
+        if (yPosition + conceptLines.length * 5 > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(conceptLines, margin, yPosition);
+        yPosition += conceptLines.length * 5 + 3;
+      });
+      yPosition += 5;
+    }
+
+    // Definitions
+    if (notes.definitions && notes.definitions.length > 0) {
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.setFontSize(14);
+      doc.text('Definitions', margin, yPosition);
+      yPosition += 8;
+      doc.setFontSize(11);
+      notes.definitions.forEach((def) => {
+        const defText = `${def.term}: ${def.definition}`;
+        const defLines = doc.splitTextToSize(defText, pageWidth - 2 * margin);
+        if (yPosition + defLines.length * 5 > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(defLines, margin, yPosition);
+        yPosition += defLines.length * 5 + 5;
+      });
+    }
+
+    // FAQs
+    if (notes.faqs && notes.faqs.length > 0) {
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.setFontSize(14);
+      doc.text('FAQs', margin, yPosition);
+      yPosition += 8;
+      doc.setFontSize(11);
+      notes.faqs.forEach((faq, idx) => {
+        const qText = `Q${idx + 1}: ${faq.question}`;
+        const qLines = doc.splitTextToSize(qText, pageWidth - 2 * margin);
+        if (yPosition + qLines.length * 5 + 10 > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(qLines, margin, yPosition);
+        yPosition += qLines.length * 5 + 3;
+        
+        const aText = `A: ${faq.answer}`;
+        const aLines = doc.splitTextToSize(aText, pageWidth - 2 * margin);
+        doc.text(aLines, margin, yPosition);
+        yPosition += aLines.length * 5 + 5;
+      });
+    }
+
+    doc.save(`${notes.title || 'lecture-notes'}.pdf`);
+  };
+
+  const exportToDocx = async () => {
+    const children = [];
+
+    // Title
+    children.push(
+      new Paragraph({
+        text: notes.title || 'Lecture Notes',
+        heading: HeadingLevel.HEADING_1,
+      })
+    );
+
+    // Summary
+    children.push(
+      new Paragraph({
+        text: 'Summary',
+        heading: HeadingLevel.HEADING_2,
+      })
+    );
+    children.push(
+      new Paragraph({
+        text: notes.summary || '',
+      })
+    );
+
+    // Important Points
+    if (notes.important_points && notes.important_points.length > 0) {
+      children.push(
+        new Paragraph({
+          text: 'Important Points',
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+      notes.important_points.forEach((point) => {
+        children.push(
+          new Paragraph({
+            text: `• ${point}`,
+          })
+        );
+      });
+    }
+
+    // Key Concepts
+    if (notes.key_concepts && notes.key_concepts.length > 0) {
+      children.push(
+        new Paragraph({
+          text: 'Key Concepts',
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+      notes.key_concepts.forEach((concept) => {
+        children.push(
+          new Paragraph({
+            text: `• ${concept}`,
+          })
+        );
+      });
+    }
+
+    // Definitions
+    if (notes.definitions && notes.definitions.length > 0) {
+      children.push(
+        new Paragraph({
+          text: 'Definitions',
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+      notes.definitions.forEach((def) => {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: `${def.term}: `, bold: true }),
+              new TextRun({ text: def.definition }),
+            ],
+          })
+        );
+      });
+    }
+
+    // FAQs
+    if (notes.faqs && notes.faqs.length > 0) {
+      children.push(
+        new Paragraph({
+          text: 'FAQs',
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+      notes.faqs.forEach((faq, idx) => {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: `Q${idx + 1}: `, bold: true }),
+              new TextRun({ text: faq.question }),
+            ],
+          })
+        );
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: 'A: ', bold: true }),
+              new TextRun({ text: faq.answer }),
+            ],
+          })
+        );
+      });
+    }
+
+    const doc = new Document({
+      sections: [
+        {
+          children: children,
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `${notes.title || 'lecture-notes'}.docx`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -123,13 +358,35 @@ const Results = () => {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            {t('dashboard')}
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              {t('dashboard')}
+            </button>
+            
+            {/* Export Buttons */}
+            <div className="flex space-x-2">
+              <button
+                onClick={exportToPDF}
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md"
+                title="Export as PDF"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">PDF</span>
+              </button>
+              <button
+                onClick={exportToDocx}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                title="Export as DOCX"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">DOCX</span>
+              </button>
+            </div>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {notes.title}
           </h1>

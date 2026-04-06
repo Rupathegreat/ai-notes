@@ -374,7 +374,7 @@ async def download_video_from_url(url: str, output_path: str) -> str:
         elif "not available" in error_msg.lower():
             raise Exception("Video not available or private")
         else:
-            raise Exception(f"Download failed. Try uploading the file directly instead.")
+            raise Exception("Download failed. Try uploading the file directly instead.")
         
     except subprocess.TimeoutExpired:
         raise Exception("Download timed out. Try a shorter video or upload file directly.")
@@ -650,6 +650,42 @@ async def get_lectures(current_user: User = Depends(get_current_user)):
     ).sort("created_at", -1).to_list(100)
     
     return lectures
+
+@api_router.get("/lectures/analytics/stats")
+async def get_analytics(current_user: User = Depends(get_current_user)):
+    """Get analytics for current user's lectures"""
+    try:
+        # Get all lectures
+        all_lectures = await db.lectures.find(
+            {"user_id": current_user.user_id},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        # Calculate stats
+        total_lectures = len(all_lectures)
+        completed_lectures = sum(1 for lec in all_lectures if lec.get("status") == "completed")
+        processing_lectures = sum(1 for lec in all_lectures if lec.get("status") == "processing")
+        failed_lectures = sum(1 for lec in all_lectures if lec.get("status") == "failed")
+        
+        # Recent activity (last 5)
+        recent_lectures = sorted(all_lectures, key=lambda x: x.get("created_at", ""), reverse=True)[:5]
+        
+        return {
+            "total_lectures": total_lectures,
+            "completed": completed_lectures,
+            "processing": processing_lectures,
+            "failed": failed_lectures,
+            "recent_activity": recent_lectures
+        }
+    except Exception as e:
+        logger.error(f"Analytics error: {e}")
+        return {
+            "total_lectures": 0,
+            "completed": 0,
+            "processing": 0,
+            "failed": 0,
+            "recent_activity": []
+        }
 
 @api_router.get("/lectures/{lecture_id}")
 async def get_lecture(

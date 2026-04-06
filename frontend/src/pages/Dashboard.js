@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDropzone } from 'react-dropzone';
 import Chatbot from '../components/Chatbot';
 import axios from 'axios';
-import { Upload, FileText, Clock, CheckCircle, XCircle, Settings as SettingsIcon, Brain } from 'lucide-react';
+import { Upload, FileText, Clock, CheckCircle, XCircle, Settings as SettingsIcon, Brain, TrendingUp, Award, BarChart3 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -20,10 +20,15 @@ const Dashboard = () => {
   const [selectedLectureId, setSelectedLectureId] = useState(null);
   const [uploadTab, setUploadTab] = useState('file'); // 'file' or 'link'
   const [urlInput, setUrlInput] = useState('');
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
     loadLectures();
-    const interval = setInterval(loadLectures, 5000); // Refresh every 5s
+    loadAnalytics();
+    const interval = setInterval(() => {
+      loadLectures();
+      loadAnalytics();
+    }, 5000); // Refresh every 5s
     return () => clearInterval(interval);
   }, []);
 
@@ -35,6 +40,17 @@ const Dashboard = () => {
       setLectures(response.data);
     } catch (error) {
       console.error('Failed to load lectures:', error);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/lectures/analytics/stats`, {
+        withCredentials: true
+      });
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Failed to load analytics:', error);
     }
   };
 
@@ -127,56 +143,30 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-screen relative ${chatbotOpen ? 'pl-80' : ''} transition-all duration-300`}>
-      {/* Stunning Teal/Green Themed Background */}
-      <div className="fixed inset-0 z-0">
-        {/* Main Background Image - Reading Character with Teal/Green Theme */}
+      {/* Clean Modern Gradient Background - No Photos */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-900">
+        {/* Subtle Animated Gradient Orbs */}
         <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/m23r8dd1_WhatsApp%20Image%202026-04-06%20at%203.13.17%20PM.jpeg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center center',
-            backgroundRepeat: 'no-repeat',
-            opacity: '0.7',
-            filter: 'brightness(1.1) saturate(1.3)'
-          }}
+          className="absolute top-0 left-0 w-96 h-96 bg-blue-300/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob"
+        />
+        <div 
+          className="absolute top-0 right-0 w-96 h-96 bg-purple-300/20 dark:bg-purple-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"
+        />
+        <div 
+          className="absolute bottom-0 left-1/2 w-96 h-96 bg-pink-300/20 dark:bg-pink-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-4000"
         />
         
-        {/* Teal & Green Gradient Overlay - Matching Image Colors */}
+        {/* Subtle Dot Pattern for Texture */}
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
           style={{
-            background: 'linear-gradient(135deg, rgba(6, 78, 78, 0.15) 0%, rgba(16, 185, 129, 0.12) 25%, rgba(6, 182, 212, 0.15) 50%, rgba(5, 150, 105, 0.12) 75%, rgba(20, 184, 166, 0.15) 100%)'
-          }}
-        />
-        
-        {/* Neon Green Glow Effects - Like the Image */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.25), transparent 50%), radial-gradient(circle at 70% 60%, rgba(6, 182, 212, 0.2), transparent 50%)',
-            mixBlendMode: 'screen'
-          }}
-        />
-        
-        {/* Dark Teal Vignette for Depth */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at center, transparent 30%, rgba(6, 78, 78, 0.4) 100%)'
-          }}
-        />
-        
-        {/* Subtle Grid Pattern - Tech Feel */}
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2310b981' fill-opacity='0.3'%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20z'/%3E%3C/g%3E%3C/svg%3E")`
+            backgroundImage: `radial-gradient(circle, #000 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
           }}
         />
       </div>
       
-      {/* Content with Teal-Themed Glass Effect */}
+      {/* Content Layer */}
       <div className="relative z-10">
         {/* Chatbot Sidebar */}
         <Chatbot 
@@ -186,7 +176,7 @@ const Dashboard = () => {
         />
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-teal-900/85 via-cyan-900/80 to-teal-900/85 dark:bg-teal-950/90 backdrop-blur-xl shadow-xl border-b border-emerald-400/30">
+      <header className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl shadow-lg border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -216,6 +206,57 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Analytics Section */}
+        {analytics && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <BarChart3 className="w-6 h-6 mr-2 text-blue-600" />
+              Analytics
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {/* Total Lectures */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-2">
+                  <TrendingUp className="w-8 h-8 opacity-80" />
+                  <span className="text-3xl font-bold">{analytics.total_lectures}</span>
+                </div>
+                <p className="text-blue-100 font-medium">Total Lectures</p>
+              </div>
+
+              {/* Completed */}
+              <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-2">
+                  <CheckCircle className="w-8 h-8 opacity-80" />
+                  <span className="text-3xl font-bold">{analytics.completed}</span>
+                </div>
+                <p className="text-green-100 font-medium">Completed</p>
+              </div>
+
+              {/* Processing */}
+              <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-2">
+                  <Clock className="w-8 h-8 opacity-80" />
+                  <span className="text-3xl font-bold">{analytics.processing}</span>
+                </div>
+                <p className="text-yellow-100 font-medium">Processing</p>
+              </div>
+
+              {/* Success Rate */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center justify-between mb-2">
+                  <Award className="w-8 h-8 opacity-80" />
+                  <span className="text-3xl font-bold">
+                    {analytics.total_lectures > 0 
+                      ? Math.round((analytics.completed / analytics.total_lectures) * 100) 
+                      : 0}%
+                  </span>
+                </div>
+                <p className="text-purple-100 font-medium">Success Rate</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Upload Section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -252,10 +293,10 @@ const Dashboard = () => {
           {uploadTab === 'file' && (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all backdrop-blur-md bg-teal-900/40 dark:bg-teal-950/60 shadow-2xl ${
+              className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all backdrop-blur-md bg-white/40 dark:bg-gray-800/40 shadow-xl ${
                 isDragActive
-                  ? 'border-emerald-400 bg-emerald-900/50 dark:bg-emerald-900/60 scale-105 shadow-emerald-500/50'
-                  : 'border-teal-500/50 dark:border-teal-600/60 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-2xl hover:bg-teal-900/50 hover:shadow-emerald-500/30'
+                  ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/30 scale-105 shadow-blue-500/30'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-2xl hover:bg-white/60 dark:hover:bg-gray-800/60'
               } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
               data-testid="upload-dropzone"
             >
@@ -329,8 +370,8 @@ const Dashboard = () => {
           </h2>
 
           {lectures.length === 0 ? (
-            <div className="text-center py-12 bg-teal-900/60 dark:bg-teal-950/70 backdrop-blur-md rounded-2xl shadow-2xl border border-emerald-400/30">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-emerald-400" />
+            <div className="text-center py-12 bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-blue-500" />
               <p className="text-gray-600 dark:text-gray-400">
                 No lectures yet. Upload your first lecture above!
               </p>
@@ -340,7 +381,7 @@ const Dashboard = () => {
               {lectures.map((lecture) => (
                 <div
                   key={lecture.lecture_id}
-                  className="bg-teal-900/70 dark:bg-teal-950/80 backdrop-blur-lg rounded-2xl p-6 shadow-2xl hover:shadow-emerald-500/30 transition-all border border-emerald-400/30 dark:border-teal-600/50 hover:scale-105 duration-300 hover:bg-teal-900/80 hover:border-emerald-400/50"
+                  className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-200/50 dark:border-gray-700/50 hover:scale-105 duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70 hover:border-blue-400/50"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <FileText className="w-8 h-8 text-blue-600" />
@@ -399,4 +440,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
 

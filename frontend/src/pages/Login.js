@@ -15,12 +15,44 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 flex items-center justify-center px-4">
+    <div className="min-h-screen relative flex items-center justify-center px-4">
+      {/* Beautiful Bright Background with Vibrant Colors */}
+      <div className="fixed inset-0 z-0">
+        {/* Bright Background Image */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(https://customer-assets.emergentagent.com/job_notes-ai-12/artifacts/fps8i3ou_image.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: '0.4',
+            filter: 'brightness(1.3) saturate(1.4)'
+          }}
+        />
+        {/* Vibrant Color Mix Overlay */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.35) 33%, rgba(236, 72, 153, 0.3) 66%, rgba(34, 211, 238, 0.25) 100%)'
+          }}
+        />
+        {/* Bright Glow Effects */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.4), transparent 40%), radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.4), transparent 40%)',
+            mixBlendMode: 'screen'
+          }}
+        />
+      </div>
+
+      {/* Content */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl max-w-md w-full"
+        className="relative z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/30"
       >
         <button
           onClick={() => navigate('/')}
